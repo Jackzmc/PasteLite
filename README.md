@@ -1,18 +1,21 @@
 # PasteLite
 
-I could not find any alternatives to hastebin that requires no developer token, so I finally gave up and made my own.
+Since hastebin now seems to require a developer token, I needed a new tool to paste content from my projects that my users can use without registration.
+After a lot of researching for alternatives that were light, that didn't use formdata and instead used the HTTP body for paste contents, I finally decided to make my own.
 
-Written in typescript with Fastify & Handlebars.
+Written in typescript and using Fastify & Handlebars, PasteLite is a fast, simple, and lightweight tool to just allow without registration users to paste content and retrieve it simply.
 
-Uses sqlite, saving to a `pastes.db` file
+Pastes are stored using sqlite into a `pastes.db` file
 
 ## Routes
 
 * `POST /paste` - Create a new paste
   * Query Parameters:
     * `expires` - The time in seconds from creation for to expire, 0 if allowed to never expire
+    * `textOnly` - Returns all information in plain text, per line to make it easier to parse without a JSON library
   * Returns:
-    * `{ id, expires, type, deleteToken }`
+    * JSON (default): `{ id, expires, type, deleteToken }`
+    * Text (?textOnly): `id\ndeleteToken`
 * `GET /:id` - Returns HTML of a paste with syntax highlighting
   * Query Parameters:
     * `theme` - Can be set to 'light' to use a light theme
