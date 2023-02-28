@@ -46,6 +46,8 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             .bind(id, req.body, req.headers['content-type'], expiresDate, deleteToken)
             .run()
 
+        fastify.log.info(`created new paste name = ${id}, type = ${req.headers['content-type']} `)
+
         if(req.query.textOnly)
             return `${id}\n${deleteToken}`
         else
@@ -78,6 +80,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             await fastify.db.prepare("DELETE FROM pastes WHERE name = ? AND deleteToken = ?")
                 .bind(paste.name, paste.deleteToken)
                 .run()
+            fastify.log.info(`paste deleted ${paste.name}`)
             return res.status(204).send()
         } else {
             return res.status(401).send({
@@ -88,6 +91,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
     })
 
     fastify.get('/:id', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
+        if(req.params.id === "favicon.ico") return res.status(404).send("404 Not Found")
         const paste = await fastify.db.prepare("SELECT content, mime FROM pastes WHERE name = ?")
             .get(req.params.id)
         if(!paste) {

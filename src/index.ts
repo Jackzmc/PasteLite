@@ -18,8 +18,22 @@ declare module 'fastify' {
     }
   }
   
-const server = fastify()
-server.decorate('db', Database())
+const server = fastify({ 
+    trustProxy: process.env.NODE_ENV === "production",
+    logger: process.env.NODE_ENV === "production" 
+        ? true
+        : {
+            transport: {
+            target: 'pino-pretty',
+            options: {
+                translateTime: 'HH:MM:ss Z',
+                ignore: 'pid,hostname',
+            },
+            },
+            level: 'debug'
+        },
+})
+server.register(Database)
 
 import Routes from './Routes.js'
 server.addContentTypeParser(/^text\/.*/, { parseAs: "string" }, textParser)
@@ -38,7 +52,6 @@ server.register(FastifyStatic, {
     root: Path.resolve('static/'),
     prefix: '/static'
 })
-
 
 server.register(FastifyView, {
     engine: {

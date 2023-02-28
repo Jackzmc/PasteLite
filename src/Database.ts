@@ -1,9 +1,12 @@
 import Sqlite from 'better-sqlite3'
+import FastifyPlugin from 'fastify-plugin'
+import { FastifyInstance } from 'fastify';
 
 const PURGE_TIME = process.env.PASTE_CLEANUP_INTERVAL ? Number(process.env.PASTE_CLEANUP_INTERVAL) : 3600
 
 
-export default function() {
+async function db(fastify: FastifyInstance) {
+    fastify.log.debug("setting up database")
     const db = Sqlite('pastes.db');
     db.prepare(`CREATE TABLE IF NOT EXISTS pastes (
         name VARCHAR(64) NOT NULL PRIMARY KEY, 
@@ -13,12 +16,13 @@ export default function() {
         deleteToken VARCHAR(64) UNIQUE
     );`).run()
     db.pragma('journal_mode = WAL');
+    fastify.decorate('db', db)
 
+    fastify.log.info(`purging expired pastes every ${PURGE_TIME} seconds`)
     setInterval(() => {
+        console.debug('purging expired pastes...')
         purgeExpired(db)
     }, 1000 * PURGE_TIME)
-
-    return db
 }
 
 function purgeExpired(db: Sqlite.Database) {
@@ -26,3 +30,5 @@ function purgeExpired(db: Sqlite.Database) {
         .run()
 }
 
+
+export default FastifyPlugin(db)
