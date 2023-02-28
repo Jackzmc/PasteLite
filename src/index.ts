@@ -42,6 +42,13 @@ function textParser(req: any, body: any, done: any) { return done(null, body )}
 
 server.setErrorHandler((error, req, reply) => {
     req.log.error(error)
+    if(error.code == "FST_ERR_CTP_INVALID_MEDIA_TYPE") {
+      return reply.status(500).send({
+        error: "INVALID_MEDIA_TYPE",
+        message: error.message
+      })
+    }
+
     return reply.status(500).send({
         error: "INTERNAL_SERVER_ERROR",
         message: process.env.NODE_ENV === "production" ? "An internal server error ocurred" : error.stack
