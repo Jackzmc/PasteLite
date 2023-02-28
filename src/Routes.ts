@@ -47,14 +47,14 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             .run()
 
         if(req.query.textOnly)
+            return `${id}\n${deleteToken}`
+        else
             return {
                 name: id,
                 expires: expiresDate,
                 type: req.headers['content-type'],
                 deleteToken
             }
-        else
-            return `${id}\n${deleteToken}`
     })
 
     fastify.delete('/:id/:token?', async (req: FastifyRequest<{Params: { id: string, token?: string}}>, res: FastifyReply) => {
