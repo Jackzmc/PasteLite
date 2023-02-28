@@ -23,3 +23,9 @@ jobs:
       run: | 
         yarn 
         yarn build
+    - name: Archive build
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: |
+          dist
