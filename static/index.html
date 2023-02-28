@@ -36,10 +36,11 @@
                 <td>Creates a new paste</td>
                 <td><ul>
                     <li><b>expires</b> - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
-                    <li><b>textOnly</b> - Will not return json but plain text of id, newline, delete token</li>
+                    <li><b>textOnly</b> - Will not return json but plain text of id\ndeletetoken\nurl*</li>
                 </ul></td>
                 <td><pre>{
     name, 
+    url,*
     expires
     type,
     deleteToken

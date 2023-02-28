@@ -48,9 +48,11 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
 
         fastify.log.info(`created new paste name = ${id}, type = ${req.headers['content-type']} `)
 
-        if(req.query.textOnly)
-            return `${id}\n${deleteToken}`
-        else
+        if(req.query.textOnly) {
+            let str = `${id}\n$${deleteToken}`
+            if(URL_PREFIX) str += `\n${URL_PREFIX + id}`
+            return str
+        } else
             return {
                 name: id,
                 url: URL_PREFIX ? URL_PREFIX + id : undefined,
