@@ -125,7 +125,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
         }
 
         res.header("Content-Type", "text/plain")
-        res.header("Content-Disposition", `inline; filename="${req.params.id}.txt`)
+        res.header("Content-Disposition", `inline; filename="${req.params.id}.txt"`)
         return res.send(paste.content)
     })
 
