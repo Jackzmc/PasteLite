@@ -14,8 +14,8 @@ Pastes are stored using sqlite into a `pastes.db` file
     * `expires` - The time in seconds from creation for to expire, 0 if allowed to never expire
     * `textOnly` - Returns all information in plain text, per line to make it easier to parse without a JSON library
   * Returns:
-    * JSON (default): `{ name, expires, type, deleteToken }`
-    * Text (?textOnly): `name\ndeleteToken`
+    * JSON (default): `{ name, url, expires, type, deleteToken }`
+    * Text (?textOnly): `name\ndeleteToken\nurl`
 * `GET /:name` - Returns HTML of a paste with syntax highlighting
   * Query Parameters:
     * `theme` - Can be set to 'light' to use a light theme
