@@ -8,6 +8,7 @@
     "@fastify/static": "^6.9.0",
     "@fastify/view": "^7.4.1",
     "better-sqlite3": "^8.1.0",
+    "dotenv": "^16.0.3",
     "fastify": "^4.13.0",
     "handlebars": "^4.7.7",
     "nanoid": "^4.0.1"

@@ -5,6 +5,8 @@ import FastifyView from '@fastify/view'
 import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'
 import Path from 'path'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const SUPPORTED_APP_MIME_TYPES = [
     "application/xml", "application/yaml"
