@@ -26,7 +26,7 @@
             <tr>
                 <th>Route</th>
                 <th>Description</th>
-                <th>Parameters</th>
+                <th>Query Parameters</th>
                 <th>Return value</th>
             </tr>
         </thead>
@@ -35,8 +35,8 @@
                 <td><b>POST</b><br><pre>/paste</pre></td>
                 <td>Creates a new paste</td>
                 <td><ul>
-                    <li><b>expires</b> - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
-                    <li><b>textOnly</b> - Will not return json but plain text of id\ndeletetoken\nurl*</li>
+                    <li><b>expires</b> (optional) - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
+                    <li><b>textOnly</b> (optional) - Will not return json but plain text of id\ndeletetoken\nurl*</li>
                 </ul></td>
                 <td><pre>{
     name, 
@@ -50,7 +50,7 @@
                 <td><b>GET</b><br><pre>/:name</pre></td>
                 <td>Display a paste in html with syntax highlighting</td>
                 <td><ul>
-                    <li><b>theme</b> - Set to 'light' for light mode, default is dark mode</li>
+                    <li><b>theme</b> (optional) - Set to 'light' for light mode, default is dark mode</li>
                 </ul></td>
                 <td></td>
             </tr>
