@@ -14,17 +14,17 @@ Pastes are stored using sqlite into a `pastes.db` file
     * `expires` - The time in seconds from creation for to expire, 0 if allowed to never expire
     * `textOnly` - Returns all information in plain text, per line to make it easier to parse without a JSON library
   * Returns:
-    * JSON (default): `{ id, expires, type, deleteToken }`
-    * Text (?textOnly): `id\ndeleteToken`
-* `GET /:id` - Returns HTML of a paste with syntax highlighting
+    * JSON (default): `{ name, expires, type, deleteToken }`
+    * Text (?textOnly): `name\ndeleteToken`
+* `GET /:name` - Returns HTML of a paste with syntax highlighting
   * Query Parameters:
     * `theme` - Can be set to 'light' to use a light theme
-* `GET /:id/raw` - Returns text/plain of the paste's content
-* `GET /:id/json` - Returns JSON of the paste
+* `GET /:name/raw` - Returns text/plain of the paste's content
+* `GET /:name/json` - Returns JSON of the paste
   * Returns:
-    * `{ id, content, expires, type }`
-    * * `GET /:id/json` - Returns JSON of the paste
-* `DELETE /:id/:deleteToken` - Deletes a paste with the given delete token (given on creation)
+    * `{ name, content, expires, type }`
+    * * `GET /:name/json` - Returns JSON of the paste
+* `DELETE /:name/:deleteToken` - Deletes a paste with the given delete token (given on creation)
   * Returns:
     * 204 on success
     * 401 on incorrect/missing token

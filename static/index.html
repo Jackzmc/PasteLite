@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PasteLite</title>
+    <style>
+    td, th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    th {
+        background-color: #04AA6D;
+        color: white;
+    }
+    tr:nth-child(even){background-color: #f2f2f2;}
+    </style>
+</head>
+<body>
+    <h1>PasteLite</h1>
+    <p>Thank you for using <a href="https://github.com/Jackzmc/PasteLite">PasteLite</a>, you can customize this homepage by editing: <pre>static/index.html</pre> in the project's root directory
+    <h2>API Routes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Route</th>
+                <th>Description</th>
+                <th>Parameters</th>
+                <th>Return value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>POST</b><br><pre>/paste</pre></td>
+                <td>Creates a new paste</td>
+                <td><ul>
+                    <li><b>expires</b> - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
+                    <li><b>textOnly</b> - Will not return json but plain text of id, newline, delete token</li>
+                </ul></td>
+                <td><pre>{
+    name, 
+    expires
+    type,
+    deleteToken
+}</pre></td>
+            </tr>
+            <tr>
+                <td><b>GET</b><br><pre>/:name</pre></td>
+                <td>Display a paste in html with syntax highlighting</td>
+                <td><ul>
+                    <li><b>theme</b> - Set to 'light' for light mode, default is dark mode</li>
+                </ul></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><b>GET</b><br><pre>/:name/raw</pre></td>
+                <td>Returns the paste content as <pre>text/plain</pre></td>
+                <td><em>None</em></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><b>GET</b><br><pre>/:name/json</pre></td>
+                <td>Returns the paste content as JSON</td>
+                <td><em>None</em></td>
+                <td><pre>{
+    name, 
+    content, 
+    type,
+    expires
+}</pre></td>
+            </tr>
+            <tr>
+                <td><b>DELETE</b><br><pre>/:name/deleteToken</pre></td>
+                <td>Deletes the paste if delete token matches</td>
+                <td><em>None</em></td>
+                <td>204 on success</td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Configuring</h2>
+    <p>Configuration is done using environmental variables, either you can set these using export or ENV_VAR=value node ..., or you can create a .env file in the project root with each line being a variable</p>
+    <p>Here is all the possible configurations:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Default</th>
+            </tr>
+        <tbody>
+            <tr>
+                <td>WEB_PORT</td>
+                <td>The port to run the server on</td>
+                <td>8080</td>
+            </tr>
+            <tr>
+                <td>PASTE_DEFAULT_EXPIRES</td>
+                <td>The default time in seconds that a paste will expire, unless overwritten</td>
+                <td>86400 (1 day)</td>
+            </tr>
+            <tr>
+                <td>PASTE_MAX_EXPIRES</td>
+                <td>If set, clamps the expires time to this value</td>
+                <td><em>not set</em></td>
+            </tr>
+            <tr>
+                <td>PASTE_ALLOWED_MIMES</td>
+                <td>A comma-separated list of mime types to allow, in addition to text/*</td>
+                <td><em>not set</em></td>
+            </tr>
+            <tr>
+                <td>PASTE_ID_ALPHABET</td>
+                <td>The characters chosen for a paste's unique id</td>
+                <td>0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</td>
+            </tr>
+            <tr>
+                <td>PASTE_ID_LENGTH</td>
+                <td>How long a paste's id should be</td>
+                <td>12</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

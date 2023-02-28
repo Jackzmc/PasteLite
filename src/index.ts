@@ -39,6 +39,7 @@ server.register(FastifyStatic, {
     prefix: '/static'
 })
 
+
 server.register(FastifyView, {
     engine: {
       handlebars: Handlebars

@@ -1,5 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from 'fastify';
 import { customAlphabet, nanoid } from 'nanoid/async'
+import { resolve } from 'path'
+import { createReadStream } from 'fs'
 
 const ID_ALPHABET = process.env.PASTE_ID_ALPHABET ?? "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 const ID_SIZE = process.env.PASTE_ID_LENGTH ? Number(process.env.PASTE_ID_LENGTH) : 12
@@ -8,7 +10,13 @@ const nanoidName = customAlphabet(ID_ALPHABET, ID_SIZE)
 const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.PASTE_MAX_EXPIRES) : null
 const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
 
+
 export default async function routes(fastify: FastifyInstance, opts: FastifyPluginOptions) {
+    fastify.get('/', (req, res) => {
+        const homepageStream = createReadStream(resolve('./static/index.html'))
+        return res.type('text/html').send(homepageStream)
+    })
+
     fastify.post('/paste', async (req: FastifyRequest<{Querystring: { expires?: number, textOnly?: boolean }}>, res: FastifyReply) => {
         // Check if the content type is text/* or any whitelisted mime types
         if(!req.headers['content-type']?.startsWith("text/") && (!ALLOWED_MIMES || !ALLOWED_MIMES.includes(req.headers['content-type']!))) {
@@ -40,7 +48,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
 
         if(req.query.textOnly)
             return {
-                id,
+                name: id,
                 expires: expiresDate,
                 type: req.headers['content-type'],
                 deleteToken
@@ -90,7 +98,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
         }
         
         res.header("Content-Type", "text/html")
-        return res.view("Index.hbs", {
+        return res.view("Paste.hbs", {
             name: req.params.id,
             content: paste.content,
             mime: paste.mime,
