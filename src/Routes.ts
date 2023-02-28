@@ -9,7 +9,7 @@ const nanoidName = customAlphabet(ID_ALPHABET, ID_SIZE)
 
 const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.PASTE_MAX_EXPIRES) : null
 const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
-
+const URL_PREFIX = process.env.PASTE_URL_PREFIX
 
 export default async function routes(fastify: FastifyInstance, opts: FastifyPluginOptions) {
     fastify.get('/', (req, res) => {
@@ -53,6 +53,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
         else
             return {
                 name: id,
+                url: URL_PREFIX ? URL_PREFIX + id : undefined,
                 expires: expiresDate,
                 type: req.headers['content-type'],
                 deleteToken
