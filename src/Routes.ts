@@ -11,13 +11,16 @@ const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.P
 const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
 
 export default async function routes(fastify: FastifyInstance, opts: FastifyPluginOptions) {
-    fastify.post('/paste', async (req: FastifyRequest<{Querystring: { expires?: number }}>, res: FastifyReply) => {
+    fastify.post('/paste', async (req: FastifyRequest<{Querystring: { expires?: number, textOnly?: boolean }}>, res: FastifyReply) => {
         // Check if the content type is text/* or any whitelisted mime types
         if(!req.headers['content-type']?.startsWith("text/") && (!ALLOWED_MIMES || !ALLOWED_MIMES.includes(req.headers['content-type']!))) {
-            return res.status(400).send({
-                error: "INVALID_CONTENT_TYPE",
-                message: "Paste is not a valid text file, must be a text/ mime type"
-            })
+            if(req.query.textOnly)
+                return res.status(400).send("INVALID_CONTENT_TYPE\nPaste is not a valid text file, must be a text/ mime type")
+            else
+                return res.status(400).send({
+                    error: "INVALID_CONTENT_TYPE",
+                    message: "Paste is not a valid text file, must be a text/ mime type"
+                })
         }
 
         const id = await nanoidName()
@@ -37,12 +40,15 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             .bind(id, req.body, req.headers['content-type'], expiresDate, deleteToken)
             .run()
 
-        return {
-            id,
-            expires: expiresDate,
-            type: req.headers['content-type'],
-            deleteToken
-        }
+        if(req.query.textOnly)
+            return {
+                id,
+                expires: expiresDate,
+                type: req.headers['content-type'],
+                deleteToken
+            }
+        else
+            return `${id}\n${deleteToken}`
     })
 
     fastify.delete('/:id/:token?', async (req: FastifyRequest<{Params: { id: string, token?: string}}>, res: FastifyReply) => {
