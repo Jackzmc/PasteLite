@@ -5,8 +5,6 @@ const ID_ALPHABET = process.env.PASTE_ID_ALPHABET ?? "0123456789ABCDEFGHIJKLMNOP
 const ID_SIZE = process.env.PASTE_ID_LENGTH ? Number(process.env.PASTE_ID_LENGTH) : 12
 const nanoidName = customAlphabet(ID_ALPHABET, ID_SIZE)
 
-import HighlightJs from 'highlight.js'
-
 const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.PASTE_MAX_EXPIRES) : null
 const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
 
@@ -90,14 +88,8 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
                 message: "Could not find a paste with that ID"
             })
         }
-
-        // if(paste.mime === "text/html")
-        // res.header("Content-Type", paste.mime)
         
         res.header("Content-Type", "text/html")
-        // const highlight = HighlightJs.highlight(paste.content, {
-        //     language: 'markdown'
-        // })
         return res.view("Index.hbs", {
             name: req.params.id,
             content: paste.content,

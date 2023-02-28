@@ -3,3 +3,4 @@ dist/
 *.db
 .env
 node_modules
+*.db-*
