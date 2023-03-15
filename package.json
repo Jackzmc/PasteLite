@@ -5,6 +5,7 @@
   "author": "Jackzmc <me@jackz.me>",
   "license": "MIT",
   "dependencies": {
+    "@fastify/cors": "^8.2.1",
     "@fastify/static": "^6.9.0",
     "@fastify/view": "^7.4.1",
     "better-sqlite3": "^8.1.0",

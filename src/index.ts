@@ -5,6 +5,7 @@ import FastifyView from '@fastify/view'
 import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'
 import Path from 'path'
+import cors from '@fastify/cors'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -32,6 +33,10 @@ const server = fastify({
             },
             level: 'debug'
         },
+})
+server.register(cors, { 
+  origin: '*',
+  
 })
 server.register(Database)
 
