@@ -1,6 +1,6 @@
 import fastify from 'fastify'
 import Database from './Database.js'
-import Sqlite from 'better-sqlite3'
+import Sqlite from 'sqlite'
 import FastifyView from '@fastify/view'
 import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'

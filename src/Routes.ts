@@ -42,9 +42,10 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
         // If query ?expires is 0, then expires will be null (never expire)
         const expiresDate = req.query.expires !== 0 ? Math.floor(Date.now() / 1000) + expires : null
 
-        await fastify.db.prepare("INSERT INTO PASTES (name, content, mime, expires, deleteToken) VALUES (?, ?, ?, ?, ?)")
-            .bind(id, req.body, req.headers['content-type'], expiresDate, deleteToken)
-            .run()
+        await fastify.db.run(
+            "INSERT INTO PASTES (name, content, mime, expires, deleteToken) VALUES (?, ?, ?, ?, ?)",
+            [id, req.body, req.headers['content-type'], expiresDate, deleteToken]
+        )
 
         fastify.log.info(`created new paste name = ${id}, type = ${req.headers['content-type']} `)
 
@@ -70,19 +71,15 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             })
         }
 
-        const paste = await fastify.db.prepare("SELECT name, deleteToken FROM pastes WHERE name = ?")
-            .get(req.params.id)
+        const paste = await fastify.db.get("SELECT name, deleteToken FROM pastes WHERE name = ?", [req.params.id])
         if(!paste) {
             return res.status(404).send({
                 error: "PASTE_NOT_FOUND",
                 message: "Could not find a paste with that ID"
             })
         }
-
         if(paste.deleteToken == req.params.token) {
-            await fastify.db.prepare("DELETE FROM pastes WHERE name = ? AND deleteToken = ?")
-                .bind(paste.name, paste.deleteToken)
-                .run()
+            await fastify.db.run("DELETE FROM pastes WHERE name = ? AND deleteToken = ?", [paste.name, paste.deleteToken])
             fastify.log.info(`paste deleted ${paste.name}`)
             return res.status(204).send()
         } else {
@@ -95,8 +92,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
 
     fastify.get('/:id', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
         if(req.params.id === "favicon.ico") return res.status(404).send("404 Not Found")
-        const paste = await fastify.db.prepare("SELECT content, mime FROM pastes WHERE name = ?")
-            .get(req.params.id)
+        const paste = await fastify.db.get("SELECT content, mime FROM pastes WHERE name = ?", [req.params.id])
         if(!paste) {
             return res.status(404).send({
                 error: "PASTE_NOT_FOUND",
@@ -115,8 +111,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
     })
 
     fastify.get('/:id/raw', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
-        const paste = await fastify.db.prepare("SELECT content, mime FROM pastes WHERE name = ?")
-            .get(req.params.id)
+        const paste = await fastify.db.get("SELECT content, mime FROM pastes WHERE name = ?", [req.params.id])
         if(!paste) {
             return res.status(404).send({
                 error: "PASTE_NOT_FOUND",
@@ -130,8 +125,7 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
     })
 
     fastify.get('/:id/json', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
-        const paste = await fastify.db.prepare("SELECT name, content, mime, expires FROM pastes WHERE name = ?")
-            .get(req.params.id)
+        const paste = await fastify.db.get("SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id])
         if(!paste) {
             return res.status(404).send({
                 error: "PASTE_NOT_FOUND",
