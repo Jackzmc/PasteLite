@@ -23,7 +23,6 @@ Pastes are stored using sqlite into a `pastes.db` file
 * `GET /:name/json` - Returns JSON of the paste
   * Returns:
     * `{ name, content, expires, type }`
-    * * `GET /:name/json` - Returns JSON of the paste
 * `DELETE /:name/:deleteToken` - Deletes a paste with the given delete token (given on creation)
   * Returns:
     * 204 on success
