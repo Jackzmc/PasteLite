@@ -15,7 +15,7 @@ Pastes are stored using sqlite into a `pastes.db` file
     * `textOnly` - Returns all information in plain text, per line to make it easier to parse without a JSON library
   * Returns:
     * JSON (default): `{ name, url, expires, type, deleteToken }`
-    * Text (?textOnly): `name\ndeleteToken\nurl`
+    * Text (?textOnly=1): `name\ndeleteToken\nurl`
 * `GET /:name` - Returns HTML of a paste with syntax highlighting
   * Query Parameters:
     * `theme` - Can be set to 'light' to use a light theme
