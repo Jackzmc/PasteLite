@@ -12,7 +12,7 @@ const DEFAULT_EXPIRES_SECONDS = process.env.PASTE_DEFAULT_EXPIRES ?? 86400 // se
 /** The maximum value to clamp the expiration time of paste */
 const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number( process.env.PASTE_MAX_EXPIRES ) : null
 /** Allowed MIME types (ignoring text/*) */
-const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split( "," )
+const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES ? process.env.PASTE_ALLOWED_MIMES.split( "," ) : ["application/json"]
 /** Optional prefix to provide quick URL */
 const URL_PREFIX = process.env.PASTE_URL_PREFIX
 
@@ -39,13 +39,16 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
     fastify.post( '/paste', async ( req: FastifyRequest<{ Querystring: { expires?: number, textOnly?: boolean } }>, res: FastifyReply ) => {
         const textResponse = req.query.textOnly != undefined
         // Check if the content type is text/* or any whitelisted mime types
-        if(!req.headers['content-type']?.startsWith("text/") && (!ALLOWED_MIMES || !ALLOWED_MIMES.includes(req.headers['content-type']!))) {
+        if ( !req.headers['content-type']?.startsWith( "text/" ) && !ALLOWED_MIMES.includes( req.headers['content-type']! )) {
+            const mimes = ["text/*", ...ALLOWED_MIMES]
+            const msg = `Paste content-type is not supported, must be one of ${mimes.join(", ")}`
             if(textResponse)
-                return res.status(400).send("INVALID_CONTENT_TYPE\nPaste is not a valid text file, must be a text/ mime type")
+                return res.status(400).send("INVALID_CONTENT_TYPE\n" + msg)
             else
                 return res.status(400).send({
                     error: "INVALID_CONTENT_TYPE",
-                    message: "Paste is not a valid text file, must be a text/ mime type"
+                    message: msg,
+                    supportedMimes: mimes
                 })
         }
         const deleteToken = nanoid(32)

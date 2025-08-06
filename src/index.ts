@@ -10,11 +10,10 @@ import FastifyStatic from '@fastify/static'
 import Path from 'path'
 import cors from '@fastify/cors'
 
-
+// MIME types that get processed as plain text
 const SUPPORTED_APP_MIME_TYPES = [
   "application/xml", "application/yaml"
 ]
-
 declare module 'fastify' {
   export interface FastifyInstance {
     db: Sqlite.Database;
@@ -48,8 +47,19 @@ server.register(cors, {
 server.register(Database)
 
 import Routes from './Routes.js'
-server.addContentTypeParser(/^text\/.*/, { parseAs: "string" }, textParser)
-server.addContentTypeParser(SUPPORTED_APP_MIME_TYPES, { parseAs: "string" }, textParser)
+server.addContentTypeParser( /^text\/.*/, { parseAs: "string" }, textParser )
+server.addContentTypeParser( SUPPORTED_APP_MIME_TYPES, { parseAs: "string" }, textParser )
+class ParseError extends Error {}
+server.addContentTypeParser( 'application/json', { parseAs: 'string' }, function ( req, body, done ) {
+  try {
+    const json = JSON.parse( body as string )
+    done( null, json )
+  } catch ( err: any ) {
+    done( new ParseError(err.message), undefined )
+  }
+} )
+
+
 function textParser(req: any, body: any, done: any) { return done(null, body )}
 
 server.setErrorHandler((error, req, reply) => {
@@ -59,6 +69,11 @@ server.setErrorHandler((error, req, reply) => {
         error: "INVALID_MEDIA_TYPE",
         message: error.message
       })
+    } else if(error instanceof ParseError) {
+      return reply.status( 400 ).send( {
+        error: "PARSE_ERROR",
+        message: error.message
+      } )
     }
 
     return reply.status(500).send({
