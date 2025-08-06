@@ -33,7 +33,7 @@
         <tbody>
             <tr>
                 <td><b>POST</b><br><code>/paste</code></td>
-                <td>Creates a new paste. <br><br>*URL only included if PASTE_URL_PREFIX is set</td>
+                <td>Creates a new paste with type determined by content-type <br><br>*URL only included if PASTE_URL_PREFIX is set</td>
                 <td><ul>
                     <li><b>expires</b> <em>(optional)</em> - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
                     <li><b>textOnly</b> <em>(optional)</em> - Will not return json but plain text of <code>%id%\n%deletetoken%\n%url%*</code></li>
