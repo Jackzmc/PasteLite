@@ -88,7 +88,7 @@ server.listen({ port: Number(process.env.WEB_PORT ?? 8080) }, (err, address) => 
     console.log(`Server listening at ${address}`)
 })
 
-process.on('exit', () => server.db.close());
+process.on('exit', () => server.db?.close());
 process.on('SIGHUP', () => process.exit(128 + 1));
 process.on('SIGINT', () => process.exit(128 + 2));
 process.on('SIGTERM', () => process.exit(128 + 15));

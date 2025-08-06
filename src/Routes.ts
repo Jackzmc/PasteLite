@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from 'fastify';
-import { customAlphabet, nanoid } from 'nanoid/async'
+import { customAlphabet, nanoid } from 'nanoid'
 import { resolve } from 'path'
 import { createReadStream } from 'fs'
 
@@ -42,8 +42,8 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
                 })
         }
 
-        const id = await nanoidName()
-        const deleteToken = await nanoid(32)
+        const id = nanoidName()
+        const deleteToken = nanoid(32)
         // Get the expires date or fallback to the default expires, or fallback to 1 day
         const expiresStr = req.query.expires ?? DEFAULT_EXPIRES_SECONDS
         let expires = Number(expiresStr)
