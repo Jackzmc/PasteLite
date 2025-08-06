@@ -22,10 +22,11 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
         return res.type('text/html').send(homepageStream)
     })
 
-    fastify.post('/paste', async (req: FastifyRequest<{Querystring: { expires?: number, textOnly?: boolean }}>, res: FastifyReply) => {
+    fastify.post( '/paste', async ( req: FastifyRequest<{ Querystring: { expires?: number, textOnly?: boolean } }>, res: FastifyReply ) => {
+        const textResponse = req.query.textOnly != undefined
         // Check if the content type is text/* or any whitelisted mime types
         if(!req.headers['content-type']?.startsWith("text/") && (!ALLOWED_MIMES || !ALLOWED_MIMES.includes(req.headers['content-type']!))) {
-            if(req.query.textOnly)
+            if(textResponse)
                 return res.status(400).send("INVALID_CONTENT_TYPE\nPaste is not a valid text file, must be a text/ mime type")
             else
                 return res.status(400).send({
@@ -54,7 +55,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
 
         fastify.log.info(`created new paste name = ${id}, type = ${req.headers['content-type']} `)
 
-        if(req.query.textOnly) {
+        if ( textResponse ) {
             let str = `${id}\n$${deleteToken}`
             if(URL_PREFIX) str += `\n${URL_PREFIX + id}`
             return str
@@ -107,7 +108,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
 
         addHeaders( paste, res )
         res.header( "Content-Type", "text/html" )
-        
+
         return res.view( "Paste.hbs", {
             name: req.params.id,
             content: paste.content,
