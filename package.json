@@ -1,6 +1,6 @@
 {
-  "name": "PasteLite",
-  "version": "1.0.0",
+  "name": "pastelite",
+  "version": "1.2.0",
   "main": "dist/index.js",
   "author": "Jackzmc <me@jackz.me>",
   "license": "MIT",
