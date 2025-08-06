@@ -88,56 +88,65 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
                 message: "Delete token is invalid"
             })
         }
-    })
-
-    fastify.get('/:id', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
-        if(req.params.id === "favicon.ico") return res.status(404).send("404 Not Found")
-        const paste = await fastify.db.get("SELECT content, mime FROM pastes WHERE name = ?", [req.params.id])
-        if(!paste) {
-            return res.status(404).send({
+    } )
+    
+    async function htmlHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
+        if ( req.params.id === "favicon.ico" ) return res.status( 404 ).send( "404 Not Found" )
+        const paste = await fastify.db.get( "SELECT content, mime FROM pastes WHERE name = ?", [req.params.id] )
+        if ( !paste ) {
+            return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
                 message: "Could not find a paste with that ID"
-            })
+            } )
         }
-        
-        res.header("Content-Type", "text/html")
-        return res.view("Paste.hbs", {
+
+        res.header( "Content-Type", "text/html" )
+        return res.view( "Paste.hbs", {
             name: req.params.id,
             content: paste.content,
             mime: paste.mime,
             dark: req.query.theme !== "light",
             language: `language-markdown`
-        })
-    })
+        } )
+    }
 
-    fastify.get('/:id/raw', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
-        const paste = await fastify.db.get("SELECT content, mime FROM pastes WHERE name = ?", [req.params.id])
-        if(!paste) {
-            return res.status(404).send({
+    async function textHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
+        const paste = await fastify.db.get( "SELECT content, mime FROM pastes WHERE name = ?", [req.params.id] )
+        if ( !paste ) {
+            return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
                 message: "Could not find a paste with that ID"
-            })
+            } )
         }
 
-        res.header("Content-Type", "text/plain")
-        res.header("Content-Disposition", `inline; filename="${req.params.id}.txt"`)
-        return res.send(paste.content)
-    })
+        res.header( "Content-Type", "text/plain" )
+        res.header( "Content-Disposition", `inline; filename="${req.params.id}.txt"` )
+        return res.send( paste.content )
+    }
 
-    fastify.get('/:id/json', async (req: FastifyRequest<{Params: { id: string}, Querystring: { theme?: string }}>, res: FastifyReply) => {
-        const paste = await fastify.db.get("SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id])
-        if(!paste) {
-            return res.status(404).send({
+    async function jsonHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
+        const paste = await fastify.db.get( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
+        if ( !paste ) {
+            return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
                 message: "Could not find a paste with that ID"
-            })
+            } )
         }
 
-        return res.send({
+        return res.send( {
             name: paste.name,
             content: paste.content,
             type: paste.mime,
             expires: paste.expires
-        })
-    })
+        } )
+    }
+
+    fastify.get( '/:id', htmlHandler )
+    fastify.get( '/:id.html', htmlHandler )
+
+    fastify.get( '/:id/raw', textHandler )
+    fastify.get( '/:id.txt', textHandler )
+
+    fastify.get( '/:id/json', jsonHandler )
+    fastify.get( '/:id.json', jsonHandler )
 }
