@@ -10,29 +10,29 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const SUPPORTED_APP_MIME_TYPES = [
-    "application/xml", "application/yaml"
+  "application/xml", "application/yaml"
 ]
 
 declare module 'fastify' {
-    export interface FastifyInstance {
-      db: Sqlite.Database;
-    }
+  export interface FastifyInstance {
+    db: Sqlite.Database;
   }
+}
   
 const server = fastify({ 
-    trustProxy: process.env.NODE_ENV === "production",
-    logger: process.env.NODE_ENV === "production" 
-        ? true
-        : {
-            transport: {
-            target: 'pino-pretty',
-            options: {
-                translateTime: 'HH:MM:ss Z',
-                ignore: 'pid,hostname',
-            },
-            },
-            level: 'debug'
+  trustProxy: process.env.NODE_ENV === "production",
+  logger: process.env.NODE_ENV === "production" 
+    ? true
+    : {
+        transport: {
+        target: 'pino-pretty',
+        options: {
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
         },
+        },
+        level: 'debug'
+    },
 })
 server.register(cors, { 
   origin: '*',
