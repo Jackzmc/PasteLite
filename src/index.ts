@@ -9,11 +9,8 @@ import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'
 import Path from 'path'
 import cors from '@fastify/cors'
+import Routes from './Routes.js'
 
-// MIME types that get processed as plain text
-const SUPPORTED_APP_MIME_TYPES = [
-  "application/xml", "application/yaml"
-]
 declare module 'fastify' {
   export interface FastifyInstance {
     db: Sqlite.Database;
@@ -37,16 +34,27 @@ const server = fastify({
   bodyLimit: process.env.BODY_LIMIT ? Number( process.env.BODY_LIMIT ) : undefined
 } )
 
-server.log.info( "NODE_ENV: " + ( process.env.NODE_ENV ?? "dev" ) )
-server.log.info( "Allowed MIMES: text/plain," + SUPPORTED_APP_MIME_TYPES.join(",") )
+// Log all the settings
+
+server.log.info( "Supported MIMES: " + ["text/plain", "application/json", ...SUPPORTED_APP_MIME_TYPES].join( "," ) )
+server.log.info( "Allowed MIMES: " + ALLOWED_MIMES.join( ", " ) )
+if(URL_PREFIX != undefined)
+    server.log.info( "URL Prefix: " + URL_PREFIX )
+else 
+    server.log.info( "URL Prefix: (not configured, set PASTE_URL_PREFIX)" )
+server.log.info(`Paste expiration (default: ${DEFAULT_EXPIRES_SECONDS}s)\t(max: ${MAX_EXPIRES_SECONDS ?? "-none-"}s)`)
+
+// Setup middleware
 
 server.register(cors, { 
   origin: '*',
   
 })
-server.register(Database)
+server.register( Database )
 
-import Routes from './Routes.js'
+// Setup req body parsers
+
+import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, MAX_EXPIRES_SECONDS, SUPPORTED_APP_MIME_TYPES, URL_PREFIX } from './Config.js'
 server.addContentTypeParser( /^text\/.*/, { parseAs: "string" }, textParser )
 server.addContentTypeParser( SUPPORTED_APP_MIME_TYPES, { parseAs: "string" }, textParser )
 class ParseError extends Error {}
@@ -59,9 +67,8 @@ server.addContentTypeParser( 'application/json', { parseAs: 'string' }, function
     done( new ParseError(err.message), undefined )
   }
 } )
+function textParser( req: any, body: any, done: any ) { return done( null, body ) }
 
-
-function textParser(req: any, body: any, done: any) { return done(null, body )}
 
 server.setErrorHandler((error, req, reply) => {
     req.log.error(error)
@@ -83,11 +90,6 @@ server.setErrorHandler((error, req, reply) => {
     })
 })
 
-server.register(FastifyStatic, {
-    root: Path.resolve('static/'),
-    prefix: '/static'
-})
-
 server.register(FastifyView, {
     engine: {
       handlebars: Handlebars
@@ -96,7 +98,13 @@ server.register(FastifyView, {
     root: 'views/'
   });
   
-server.register(Routes)
+server.register( Routes )
+
+server.register( FastifyStatic, {
+  root: Path.resolve( 'static/' ),
+  prefix: '/static',
+  index: "index.html"
+} )
 
 server.listen({ port: Number(process.env.WEB_PORT ?? 8080) }, (err, address) => {
   if (err) {

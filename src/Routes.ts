@@ -2,19 +2,9 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { customAlphabet, nanoid } from 'nanoid'
 import { resolve } from 'path'
 import { createReadStream } from 'fs'
+import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, ID_ALPHABET, ID_SIZE, MAX_EXPIRES_SECONDS, URL_PREFIX } from './Config.js';
 
-const ID_ALPHABET = process.env.PASTE_ID_ALPHABET ?? "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-const ID_SIZE = process.env.PASTE_ID_LENGTH ? Number(process.env.PASTE_ID_LENGTH) : 12
-const nanoidName = customAlphabet(ID_ALPHABET, ID_SIZE)
-
-/** The default expiration time for pastes */
-const DEFAULT_EXPIRES_SECONDS = process.env.PASTE_DEFAULT_EXPIRES ?? 86400 // sets to 1 day if not configured
-/** The maximum value to clamp the expiration time of paste */
-const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number( process.env.PASTE_MAX_EXPIRES ) : null
-/** Allowed MIME types (ignoring text/*) */
-const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES ? process.env.PASTE_ALLOWED_MIMES.split( "," ) : ["application/json"]
-/** Optional prefix to provide quick URL */
-const URL_PREFIX = process.env.PASTE_URL_PREFIX
+export const nanoidName = customAlphabet( ID_ALPHABET, ID_SIZE )
 
 interface PasteObject {
     name: string,
@@ -24,16 +14,8 @@ interface PasteObject {
 }
 
 export default async function routes( fastify: FastifyInstance, opts: FastifyPluginOptions ) {
-    if(URL_PREFIX != undefined)
-        fastify.log.info( "URL Prefix: " + URL_PREFIX )
-    else 
-        fastify.log.info( "URL Prefix: (not configured, set PASTE_URL_PREFIX)" )
-    
-    fastify.log.info(`Paste expiration (default: ${DEFAULT_EXPIRES_SECONDS}s)\t(max: ${MAX_EXPIRES_SECONDS ?? "-none-"}s)`)
-
-    fastify.get('/', (req, res) => {
-        const homepageStream = createReadStream(resolve('./static/index.html'))
-        return res.type('text/html').send(homepageStream)
+    fastify.get( '/', ( req, reply ) => {
+        reply.sendFile("index.html")
     })
 
     fastify.post( '/paste', async ( req: FastifyRequest<{ Querystring: { expires?: number, textOnly?: boolean } }>, res: FastifyReply ) => {
@@ -134,7 +116,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
         addHeaders( paste, res )
         res.header( "Content-Type", "text/html" )
 
-        return res.view( "Paste.hbs", {
+        return res.view( "paste.html.hbs", {
             name: req.params.id,
             content: paste.content,
             mime: paste.mime,

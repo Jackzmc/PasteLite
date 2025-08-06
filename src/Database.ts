@@ -19,15 +19,17 @@ async function db(fastify: FastifyInstance) {
     fastify.log.debug( "Database ready" )
     fastify.decorate('db', db)
 
-    fastify.log.info(`Purging expired pastes every ${PURGE_TIME} seconds`)
+    fastify.log.info(`Checking for expired pastes to purge every ${PURGE_TIME} seconds`)
     setInterval(() => {
-        console.debug('purging expired pastes...')
-        purgeExpired(db)
+        console.debug('purging any expired pastes...')
+        purgeExpired(fastify, db)
     }, 1000 * PURGE_TIME)
 }
 
-async function purgeExpired(db: Database) {
-    await db.run("DELETE FROM PASTES WHERE expires < UNIXEPOCH()")
+async function purgeExpired( fastify: FastifyInstance, db: Database) {
+    const a = await db.run( "DELETE FROM PASTES WHERE expires < UNIXEPOCH()" )
+    if(a.changes && a.changes > 0)
+        fastify.log.info(`purged ${a.changes} expired pastes`)
 }
 
 
