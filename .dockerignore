@@ -1,0 +1,9 @@
+.vscode
+dist/
+*.db
+.env
+node_modules
+*.db-*
+yarn-error.log
+*.sh
+ecosystem.config.*
