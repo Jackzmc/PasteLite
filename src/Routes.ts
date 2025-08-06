@@ -7,15 +7,22 @@ const ID_ALPHABET = process.env.PASTE_ID_ALPHABET ?? "0123456789ABCDEFGHIJKLMNOP
 const ID_SIZE = process.env.PASTE_ID_LENGTH ? Number(process.env.PASTE_ID_LENGTH) : 12
 const nanoidName = customAlphabet(ID_ALPHABET, ID_SIZE)
 
-const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.PASTE_MAX_EXPIRES) : null
-const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
+/** The default expiration time for pastes */
+const DEFAULT_EXPIRES_SECONDS = process.env.PASTE_DEFAULT_EXPIRES ?? 86400 // sets to 1 day if not configured
+/** The maximum value to clamp the expiration time of paste */
+const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number( process.env.PASTE_MAX_EXPIRES ) : null
+/** Allowed MIME types (ignoring text/*) */
+const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split( "," )
+/** Optional prefix to provide quick URL */
 const URL_PREFIX = process.env.PASTE_URL_PREFIX
 
 export default async function routes( fastify: FastifyInstance, opts: FastifyPluginOptions ) {
     if(URL_PREFIX != undefined)
         fastify.log.info( "URL Prefix: " + URL_PREFIX )
     else 
-        fastify.log.info( "URL Prefix: (not configured, set PASTE_URL_PREFIX)")
+        fastify.log.info( "URL Prefix: (not configured, set PASTE_URL_PREFIX)" )
+    
+    fastify.log.info(`Paste expiration (default: ${DEFAULT_EXPIRES_SECONDS}s)\t(max: ${MAX_EXPIRES_SECONDS ?? "-none-"}s)`)
 
     fastify.get('/', (req, res) => {
         const homepageStream = createReadStream(resolve('./static/index.html'))
@@ -38,7 +45,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
         const id = await nanoidName()
         const deleteToken = await nanoid(32)
         // Get the expires date or fallback to the default expires, or fallback to 1 day
-        const expiresStr = req.query.expires ?? process.env.PASTE_DEFAULT_EXPIRES ?? 86400
+        const expiresStr = req.query.expires ?? DEFAULT_EXPIRES_SECONDS
         let expires = Number(expiresStr)
         // Clamp the empires seconds to MAX_EXPIRES_SECONDS, if set
         if(MAX_EXPIRES_SECONDS != null && expires > MAX_EXPIRES_SECONDS) {
