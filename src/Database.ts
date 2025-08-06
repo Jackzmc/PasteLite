@@ -7,7 +7,7 @@ const PURGE_TIME = process.env.PASTE_CLEANUP_INTERVAL ? Number(process.env.PASTE
 
 
 async function db(fastify: FastifyInstance) {
-    fastify.log.debug("setting up database")
+    fastify.log.debug("Setting up database")
     const db = await open( { filename: 'pastes.db', driver: Sqlite3.Database } );
     await db.run(`CREATE TABLE IF NOT EXISTS pastes (
         name VARCHAR(64) NOT NULL PRIMARY KEY, 
@@ -16,9 +16,10 @@ async function db(fastify: FastifyInstance) {
         expires INT,
         deleteToken VARCHAR(64) UNIQUE
     );`)
+    fastify.log.debug( "Database ready" )
     fastify.decorate('db', db)
 
-    fastify.log.info(`purging expired pastes every ${PURGE_TIME} seconds`)
+    fastify.log.info(`Purging expired pastes every ${PURGE_TIME} seconds`)
     setInterval(() => {
         console.debug('purging expired pastes...')
         purgeExpired(db)
