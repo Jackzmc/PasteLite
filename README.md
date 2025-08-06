@@ -77,4 +77,5 @@ PASTE_ID_ALPHABET - The characters to use for generating ids, default is '012345
 PASTE_ID_LENGTH - The number of characters to generate for an id, default is 12
 PASTE_URL_PREFIX - If set, creating a paste will return 'url' with this being prefixed with paste name
 PASTE_CLEANUP_INTERVAL - How often to check for pastes to be cleaned up in seconds. It is not the actual paste expiration. (default: 3600s)
+BODY_LIMIT - Fastify's max request body size (default 1048576 (1MiB) )
 ```

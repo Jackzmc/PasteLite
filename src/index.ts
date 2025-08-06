@@ -35,6 +35,7 @@ const server = fastify({
         },
         level: 'debug'
     },
+  bodyLimit: process.env.BODY_LIMIT ? Number( process.env.BODY_LIMIT ) : undefined
 } )
 
 server.log.info( "NODE_ENV: " + ( process.env.NODE_ENV ?? "dev" ) )
@@ -82,11 +83,10 @@ server.register(FastifyView, {
 server.register(Routes)
 
 server.listen({ port: Number(process.env.WEB_PORT ?? 8080) }, (err, address) => {
-    if (err) {
-      console.error(err)
-      process.exit(1)
-    }
-    console.log(`Server listening at ${address}`)
+  if (err) {
+    console.error(err)
+    process.exit(1)
+  }
 })
 
 process.on('exit', () => server.db?.close());
