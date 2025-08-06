@@ -11,7 +11,12 @@ const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number(process.env.P
 const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split(",")
 const URL_PREFIX = process.env.PASTE_URL_PREFIX
 
-export default async function routes(fastify: FastifyInstance, opts: FastifyPluginOptions) {
+export default async function routes( fastify: FastifyInstance, opts: FastifyPluginOptions ) {
+    if(URL_PREFIX != undefined)
+        fastify.log.info( "URL Prefix: " + URL_PREFIX )
+    else 
+        fastify.log.info( "URL Prefix: (not configured, set PASTE_URL_PREFIX)")
+
     fastify.get('/', (req, res) => {
         const homepageStream = createReadStream(resolve('./static/index.html'))
         return res.type('text/html').send(homepageStream)
@@ -100,7 +105,9 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             } )
         }
 
+        addHeaders( paste, res )
         res.header( "Content-Type", "text/html" )
+        
         return res.view( "Paste.hbs", {
             name: req.params.id,
             content: paste.content,
@@ -119,6 +126,8 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
             } )
         }
 
+        addHeaders( paste, res )
+
         res.header( "Content-Type", "text/plain" )
         res.header( "Content-Disposition", `inline; filename="${req.params.id}.txt"` )
         return res.send( paste.content )
@@ -132,6 +141,30 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
                 message: "Could not find a paste with that ID"
             } )
         }
+
+        addHeaders( paste, res )
+
+        if ( paste.mime.startsWith( "application/json" ) ) {
+            res.type( "application/json" )
+            return JSON.stringify(paste.content, null, 2)
+        } 
+
+        return res.status( 404 ).send( {
+            error: "PASTE_NOT_JSON",
+            message: "Paste exists but is not valid JSON"
+        })
+    }
+
+    async function metaHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
+        const paste = await fastify.db.get( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
+        if ( !paste ) {
+            return res.status( 404 ).send( {
+                error: "PASTE_NOT_FOUND",
+                message: "Could not find a paste with that ID"
+            } )
+        }
+
+        addHeaders(paste, res)
 
         return res.send( {
             name: paste.name,
@@ -149,4 +182,19 @@ export default async function routes(fastify: FastifyInstance, opts: FastifyPlug
 
     fastify.get( '/:id/json', jsonHandler )
     fastify.get( '/:id.json', jsonHandler )
+
+    fastify.get( '/:id/meta', metaHandler )
+    fastify.get( '/:id.meta.json', metaHandler )
+}
+
+/**
+ * Adds headers about the paste:
+ * 'PASTE_EXPIRES' - unix timestamp when paste expires
+ * 'PASTE_MIME' - the content type of the paste
+ * @param paste paste obj
+ * @param res fastify reply
+ */ 
+function addHeaders( paste: any, res: FastifyReply ) {
+    res.header( "PASTE_EXPIRES", paste.expires )
+    res.header( "PASTE_MIME", paste.mime )
 }
