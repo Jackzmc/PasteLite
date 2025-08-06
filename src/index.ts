@@ -2,14 +2,14 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 import fastify from 'fastify'
-import Database from './Database.js'
+import Database from './database.js'
 import Sqlite from 'sqlite'
 import FastifyView from '@fastify/view'
 import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'
 import Path from 'path'
 import cors from '@fastify/cors'
-import Routes from './Routes.js'
+import Routes from './routes.js'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -54,7 +54,7 @@ server.register( Database )
 
 // Setup req body parsers
 
-import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, MAX_EXPIRES_SECONDS, SUPPORTED_APP_MIME_TYPES, URL_PREFIX } from './Config.js'
+import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, MAX_EXPIRES_SECONDS, SUPPORTED_APP_MIME_TYPES, URL_PREFIX } from './config.js'
 server.addContentTypeParser( /^text\/.*/, { parseAs: "string" }, textParser )
 server.addContentTypeParser( SUPPORTED_APP_MIME_TYPES, { parseAs: "string" }, textParser )
 class ParseError extends Error {}

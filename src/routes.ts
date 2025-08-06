@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { customAlphabet, nanoid } from 'nanoid'
 import { resolve } from 'path'
 import { createReadStream } from 'fs'
-import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, ID_ALPHABET, ID_SIZE, MAX_EXPIRES_SECONDS, URL_PREFIX } from './Config.js';
+import { ALLOWED_MIMES, DEFAULT_EXPIRES_SECONDS, ID_ALPHABET, ID_SIZE, MAX_EXPIRES_SECONDS, URL_PREFIX } from './config.js';
 
 export const nanoidName = customAlphabet( ID_ALPHABET, ID_SIZE )
 
