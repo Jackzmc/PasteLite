@@ -88,6 +88,16 @@
             </tr>
         </tbody>
     </table>
+    <h3>Response Headers</h3>
+    <p>All the GET routes also return the following headers:</p>
+    <ul>
+        <li>PASTE_EXPIRES - the unix timestamp of paste expiration</li>
+        <li>PASTE_MIME - the mime type of paste</li>
+    </ul>
+    <ul>
+        <li>PASTE_DELETE_TOKEN - on POST this is provided with the same delete token</li>
+    </ul>
+    <hr>
     <h2>Configuring</h2>
     <p>Configuration is done using environmental variables, either you can set these using export or ENV_VAR=value node ..., or you can create a .env file in the project root with each line being a variable</p>
     <p>Here is all the possible configurations:</p>
@@ -117,7 +127,7 @@
             <tr>
                 <td>PASTE_ALLOWED_MIMES</td>
                 <td>A comma-separated list of mime types to allow, in addition to text/*</td>
-                <td><em>not set</em></td>
+                <td><em>application/json</em></td>
             </tr>
             <tr>
                 <td>PASTE_ID_ALPHABET</td>
