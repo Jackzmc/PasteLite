@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import fastify from 'fastify'
 import Database from './Database.js'
 import Sqlite from 'sqlite'
@@ -6,8 +9,6 @@ import Handlebars from 'handlebars'
 import FastifyStatic from '@fastify/static'
 import Path from 'path'
 import cors from '@fastify/cors'
-import * as dotenv from 'dotenv'
-dotenv.config()
 
 
 const SUPPORTED_APP_MIME_TYPES = [
