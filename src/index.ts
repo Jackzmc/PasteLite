@@ -52,8 +52,9 @@ server.addContentTypeParser( SUPPORTED_APP_MIME_TYPES, { parseAs: "string" }, te
 class ParseError extends Error {}
 server.addContentTypeParser( 'application/json', { parseAs: 'string' }, function ( req, body, done ) {
   try {
-    const json = JSON.parse( body as string )
-    done( null, json )
+    // Parse to verify it's valid JSON - but we just want the raw json
+    JSON.parse( body as string )
+    done( null, body )
   } catch ( err: any ) {
     done( new ParseError(err.message), undefined )
   }
