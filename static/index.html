@@ -32,22 +32,19 @@
         </thead>
         <tbody>
             <tr>
-                <td><b>POST</b><br><pre>/paste</pre></td>
-                <td>Creates a new paste</td>
+                <td><b>POST</b><br><code>/paste</code></td>
+                <td>Creates a new paste. <br><br>*URL only included if PASTE_URL_PREFIX is set</td>
                 <td><ul>
-                    <li><b>expires</b> (optional) - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
-                    <li><b>textOnly</b> (optional) - Will not return json but plain text of id\ndeletetoken\nurl*</li>
+                    <li><b>expires</b> <em>(optional)</em> - Time in seconds for the paste to expire, if not set, falls back to the host's default which is 1 day if unchanged. Set to '0' to never expire (unless host has set a maximum)</li>
+                    <li><b>textOnly</b> <em>(optional)</em> - Will not return json but plain text of <code>%id%\n%deletetoken%\n%url%*</code></li>
                 </ul></td>
-                <td><pre>{
-    name, 
-    url,*
-    expires
-    type,
-    deleteToken
-}</pre></td>
+                <td><pre>{<br>    name,<br>    url, *<br>    expires,<br>    type,<br>    deleteToken<br>}</pre></td>
             </tr>
             <tr>
-                <td><b>GET</b><br><pre>/:name</pre></td>
+                <td><b>GET</b>
+                    <br><code>/:name</code>
+                    <br><code>/:name.html</code>
+                </td>
                 <td>Display a paste in html with syntax highlighting</td>
                 <td><ul>
                     <li><b>theme</b> (optional) - Set to 'light' for light mode, default is dark mode</li>
@@ -55,21 +52,33 @@
                 <td>HTML site</td>
             </tr>
             <tr>
-                <td><b>GET</b><br><pre>/:name/raw</pre></td>
+                <td><b>GET</b>
+                    <br><code>/:name/raw</code>
+                    <br><code>/:name.txt</code>
+                </td>
                 <td>Returns the paste content as <pre>text/plain</pre></td>
                 <td><em>None</em></td>
                 <td>text/plain content</td>
             </tr>
             <tr>
-                <td><b>GET</b><br><pre>/:name/json</pre></td>
-                <td>Returns the paste content as JSON</td>
+                <td><b>GET</b>
+                    <br><code>/:name/json</code>
+                    <br><code>/:name.json</code>
+                </td>
+                <td>Returns the paste content as JSON, or 404 if unavailable (not JSON)</td>
                 <td><em>None</em></td>
-                <td><pre>{
-    name, 
-    content, 
-    type,
-    expires
-}</pre></td>
+                <td>application/json content</td>
+            </tr>
+            <tr>
+                <td><b>GET</b>
+                    <br><code>/:name/meta</code>
+                    <br><code>/:name.meta.json</code>
+                </td>
+                <td>Returns metadata about paste in JSON</td>
+                <td><em>None</em></td>
+                <td>
+                    <pre>{<br>    name, <br>    content, <br>    type, <br>    expires <br>}</pre>
+                </td>
             </tr>
             <tr>
                 <td><b>DELETE</b><br><pre>/:name/deleteToken</pre></td>
