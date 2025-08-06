@@ -5,3 +5,5 @@ dist/
 node_modules
 *.db-*
 yarn-error.log
+*.sh
+ecosystem.config.*
