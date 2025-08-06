@@ -9,6 +9,7 @@ import cors from '@fastify/cors'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
+
 const SUPPORTED_APP_MIME_TYPES = [
   "application/xml", "application/yaml"
 ]
@@ -33,7 +34,11 @@ const server = fastify({
         },
         level: 'debug'
     },
-})
+} )
+
+server.log.info( "NODE_ENV: " + ( process.env.NODE_ENV ?? "dev" ) )
+server.log.info( "Allowed MIMES: text/plain," + SUPPORTED_APP_MIME_TYPES.join(",") )
+
 server.register(cors, { 
   origin: '*',
   
