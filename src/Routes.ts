@@ -16,6 +16,13 @@ const ALLOWED_MIMES = process.env.PASTE_ALLOWED_MIMES?.split( "," )
 /** Optional prefix to provide quick URL */
 const URL_PREFIX = process.env.PASTE_URL_PREFIX
 
+interface PasteObject {
+    name: string,
+    mime: string,
+    content: string,
+    expires: number | null
+}
+
 export default async function routes( fastify: FastifyInstance, opts: FastifyPluginOptions ) {
     if(URL_PREFIX != undefined)
         fastify.log.info( "URL Prefix: " + URL_PREFIX )
@@ -41,39 +48,47 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
                     message: "Paste is not a valid text file, must be a text/ mime type"
                 })
         }
-
-        const id = nanoidName()
         const deleteToken = nanoid(32)
         // Get the expires date or fallback to the default expires, or fallback to 1 day
         const expiresStr = req.query.expires ?? DEFAULT_EXPIRES_SECONDS
         let expires = Number(expiresStr)
         // Clamp the empires seconds to MAX_EXPIRES_SECONDS, if set
-        if(MAX_EXPIRES_SECONDS != null && expires > MAX_EXPIRES_SECONDS) {
+        if ( MAX_EXPIRES_SECONDS != null && expires > MAX_EXPIRES_SECONDS ) {
             expires = MAX_EXPIRES_SECONDS
         }
 
         // If query ?expires is 0, then expires will be null (never expire)
-        const expiresDate = req.query.expires !== 0 ? Math.floor(Date.now() / 1000) + expires : null
+        const expiresDate = req.query.expires !== 0 ? Math.floor( Date.now() / 1000 ) + expires : null
+            
+
+        const paste: PasteObject = {
+            name: nanoidName(),
+            mime: req.headers['content-type']!,
+            expires: expiresDate,
+            content: req.body as string
+        }
 
         await fastify.db.run(
             "INSERT INTO PASTES (name, content, mime, expires, deleteToken) VALUES (?, ?, ?, ?, ?)",
-            [id, req.body, req.headers['content-type'], expiresDate, deleteToken]
+            [paste.name, paste.content, paste.mime, paste.expires, deleteToken]
         )
 
-        fastify.log.info(`created new paste name = ${id}, type = ${req.headers['content-type']} `)
+        fastify.log.info( `created new paste name = ${paste.name}, type = ${req.headers['content-type']} ` )
+        addHeaders(paste, res, deleteToken)
 
         if ( textResponse ) {
-            let str = `${id}\n$${deleteToken}`
-            if(URL_PREFIX) str += `\n${URL_PREFIX + id}`
+            let str = `${paste.name}\n$${deleteToken}`
+            if ( URL_PREFIX ) str += `\n${URL_PREFIX + paste.name}`
             return str
-        } else
+        } else {
             return {
-                name: id,
-                url: URL_PREFIX ? URL_PREFIX + id : undefined,
-                expires: expiresDate,
-                type: req.headers['content-type'],
+                name: paste.name,
+                url: URL_PREFIX && `${URL_PREFIX}${paste.name}`,
+                expires: paste.expires,
+                type: paste.mime,
                 deleteToken
             }
+        }
     })
 
     fastify.delete('/:id/:token?', async (req: FastifyRequest<{Params: { id: string, token?: string}}>, res: FastifyReply) => {
@@ -105,7 +120,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
     
     async function htmlHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
         if ( req.params.id === "favicon.ico" ) return res.status( 404 ).send( "404 Not Found" )
-        const paste = await fastify.db.get( "SELECT content, mime FROM pastes WHERE name = ?", [req.params.id] )
+        const paste = await fastify.db.get( "SELECT content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
         if ( !paste ) {
             return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
@@ -126,7 +141,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
     }
 
     async function textHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
-        const paste = await fastify.db.get( "SELECT content, mime FROM pastes WHERE name = ?", [req.params.id] )
+        const paste = await fastify.db.get<PasteObject>( "SELECT content, mime, expires  FROM pastes WHERE name = ?", [req.params.id] )
         if ( !paste ) {
             return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
@@ -142,7 +157,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
     }
 
     async function jsonHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
-        const paste = await fastify.db.get( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
+        const paste = await fastify.db.get<PasteObject>( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
         if ( !paste ) {
             return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
@@ -164,7 +179,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
     }
 
     async function metaHandler( req: FastifyRequest<{ Params: { id: string }, Querystring: { theme?: string } }>, res: FastifyReply ) {
-        const paste = await fastify.db.get( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
+        const paste = await fastify.db.get<PasteObject>( "SELECT name, content, mime, expires FROM pastes WHERE name = ?", [req.params.id] )
         if ( !paste ) {
             return res.status( 404 ).send( {
                 error: "PASTE_NOT_FOUND",
@@ -202,7 +217,9 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
  * @param paste paste obj
  * @param res fastify reply
  */ 
-function addHeaders( paste: any, res: FastifyReply ) {
+function addHeaders( paste: PasteObject, res: FastifyReply, deleteToken?: string ) {
     res.header( "PASTE_EXPIRES", paste.expires )
     res.header( "PASTE_MIME", paste.mime )
+    if(deleteToken)
+        res.header( "PASTE_DELETE_TOKEN", deleteToken)
 }
