@@ -76,4 +76,5 @@ PASTE_ALLOWED_MIMES - The mime types that are allowed, by default is any text/*
 PASTE_ID_ALPHABET - The characters to use for generating ids, default is '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 PASTE_ID_LENGTH - The number of characters to generate for an id, default is 12
 PASTE_URL_PREFIX - If set, creating a paste will return 'url' with this being prefixed with paste name
+PASTE_CLEANUP_INTERVAL - How often to check for pastes to be cleaned up in seconds. It is not the actual paste expiration. (default: 3600s)
 ```
