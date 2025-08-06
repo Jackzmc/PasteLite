@@ -172,7 +172,7 @@ export default async function routes( fastify: FastifyInstance, opts: FastifyPlu
 
         if ( paste.mime.startsWith( "application/json" ) ) {
             res.type( "application/json" )
-            return JSON.stringify(paste.content, null, 2)
+            return paste.content
         } 
 
         return res.status( 404 ).send( {
