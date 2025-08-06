@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ name }} - PasteLite</title>
     <style>
-        body { margin: 0px; padding: 0px; height: 100%; overflow-x: hidden; }
-       
+        html, body { margin: 0px; padding: 0px; height: 100%; overflow-x: hidden; }
+        pre { margin-top: 0 !important }
     </style>
     {{#if dark}}
     <link href="static/prism.dark.css" rel="stylesheet" />
@@ -19,10 +19,11 @@
 <pre>
 <code class="{{language}}">{{ content }}</code>
 </pre>
-{{#if dark}}
-<script src="static/prism.dark.js"></script>
-{{else}}
-<script src="static/prism.light.js"></script>
-{{/if}}
+    
+    {{#if dark}}
+    <script src="static/prism.dark.js"></script>
+    {{else}}
+    <script src="static/prism.light.js"></script>
+    {{/if}}
 </body>
 </html>
