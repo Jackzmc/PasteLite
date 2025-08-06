@@ -1,0 +1,37 @@
+services:
+  app:
+    image: jackzmc/pastelite:latest
+    container_name: pastelite
+    volumes:
+      - ./db:/app/db
+    ports:
+      - 8080:8080
+    environment:
+      # Values shown are the defaults used when no ENV is set
+
+      ## The port the server to run on
+      # WEB_PORT: 8080
+
+      ## The default amount of seconds a paste will expire, default is 1 day
+      # PASTE_DEFAULT_EXPIRES: 86400
+
+      ## If set, will put maximum amount of seconds that a paste can expire 
+      # PASTE_MAX_EXPIRES: 0
+
+      ## The mime types that are allowed, by default is application/json (text/* always allowed)
+      # PASTE_ALLOWED_MIMES: "application/json"
+
+      ## The characters to use for generating ids, default is '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+      # PASTE_ID_ALPHABET: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+      ## The number of characters to generate for an id, default is 12
+      # PASTE_ID_LENGTH: 12
+
+      ## If set, creating a paste will return 'url' with this being prefixed with paste name
+      PASTE_URL_PREFIX: ""
+
+      ## How often to check for pastes to be cleaned up in seconds. It is not the actual paste expiration. (default: 3600s)
+      # PASTE_CLEANUP_INTERVAL: 3600
+
+      ## Fastify's max request body size (default 1048576 (1MiB) )
+      # BODY_LIMIT: 1048576

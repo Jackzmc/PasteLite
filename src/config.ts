@@ -14,4 +14,4 @@ export const DEFAULT_EXPIRES_SECONDS = process.env.PASTE_DEFAULT_EXPIRES ?? 8640
 /** The maximum value to clamp the expiration time of paste */
 export const MAX_EXPIRES_SECONDS = process.env.PASTE_MAX_EXPIRES ? Number( process.env.PASTE_MAX_EXPIRES ) : null
 /** Optional prefix to provide quick URL */
-export const URL_PREFIX = process.env.PASTE_URL_PREFIX
+export const URL_PREFIX = process.env.PASTE_URL_PREFIX != undefined && process.env.PASTE_URL_PREFIX != "" ? process.env.PASTE_URL_PREFIX : null

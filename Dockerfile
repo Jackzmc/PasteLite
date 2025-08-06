@@ -13,7 +13,17 @@ COPY . .
 
 RUN npx tsc
 
-# FROM node:24-alpine AS base
-# COPY --from=builder /build/dist /app
+FROM node:24-alpine AS prod
+# FROM node:bookworm AS prod
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package*.json /app/
+COPY yarn.lock* /app/
+COPY static /app/static
+RUN yarn --production && mkdir /app/db
+COPY --from=builder /build/dist /app/dist/
 
 CMD ["node", "./dist/index.js"]

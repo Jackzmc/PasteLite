@@ -2,13 +2,15 @@ import Sqlite3 from 'sqlite3'
 import { Database, open } from 'sqlite'
 import FastifyPlugin from 'fastify-plugin'
 import { FastifyInstance } from 'fastify';
+import { mkdir } from 'fs/promises';
 
 const PURGE_TIME = process.env.PASTE_CLEANUP_INTERVAL ? Number(process.env.PASTE_CLEANUP_INTERVAL) : 3600
 
 
 async function db(fastify: FastifyInstance) {
-    fastify.log.debug("Setting up database")
-    const db = await open( { filename: 'pastes.db', driver: Sqlite3.Database } );
+    fastify.log.debug( "Setting up database" )
+    await mkdir("db").catch(() => {})
+    const db = await open( { filename: 'db/pastes.db', driver: Sqlite3.Database } );
     await db.run(`CREATE TABLE IF NOT EXISTS pastes (
         name VARCHAR(64) NOT NULL PRIMARY KEY, 
         content TEXT NOT NULL,

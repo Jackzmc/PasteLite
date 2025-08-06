@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
-
 import fastify from 'fastify'
 import Database from './database.js'
 import Sqlite from 'sqlite'
