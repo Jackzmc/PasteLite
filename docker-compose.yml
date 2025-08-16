@@ -12,6 +12,9 @@ services:
       ## The port the server to run on
       # WEB_PORT: 8080
 
+      ## IP to listen on
+      # LISTEN_IP: 0.0.0.0
+
       ## The default amount of seconds a paste will expire, default is 1 day
       # PASTE_DEFAULT_EXPIRES: 86400
 

@@ -70,6 +70,7 @@ All the settings you want to change can be configured through environmental vari
 
 ```
 WEB_PORT = The port the server to run on
+LISTEN_IP - The IP address to listen to, default 0.0.0.0
 PASTE_DEFAULT_EXPIRES - The default amount of seconds a paste will expire, default is 1 day
 PASTE_MAX_EXPIRES - If set, will put maximum amount of seconds that a paste can expire 
 PASTE_ALLOWED_MIMES - The mime types that are allowed, by default is application/json (text/* always allowed)

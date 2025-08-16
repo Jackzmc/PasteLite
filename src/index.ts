@@ -103,7 +103,10 @@ server.register( FastifyStatic, {
   index: "index.html"
 } )
 
-server.listen({ port: Number(process.env.WEB_PORT ?? 8080) }, (err, address) => {
+const PORT = Number( process.env.WEB_PORT ?? 8080 )
+const HOST = process.env.LISTEN_IP ?? "0.0.0.0"
+
+server.listen({ port: PORT, host: HOST }, (err, address) => {
   if (err) {
     console.error(err)
     process.exit(1)
