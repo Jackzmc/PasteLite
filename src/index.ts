@@ -67,7 +67,7 @@ server.addContentTypeParser( 'application/json', { parseAs: 'string' }, function
 function textParser( req: any, body: any, done: any ) { return done( null, body ) }
 
 
-server.setErrorHandler((error, req, reply) => {
+server.setErrorHandler((error: any, req, reply) => {
     req.log.error(error)
     if(error.code == "FST_ERR_CTP_INVALID_MEDIA_TYPE") {
       return reply.status(500).send({

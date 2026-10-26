@@ -1,0 +1,3 @@
+allowBuilds:
+  sqlite: true
+  sqlite3: true
