@@ -1,9 +1,10 @@
 {
   "name": "pastelite",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "main": "dist/index.js",
   "author": "Jackzmc <me@jackz.me>",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@fastify/cors": "^11.3.1",
     "@fastify/static": "^10.1.7",
@@ -20,7 +21,6 @@
     "pino-pretty": "^13.2.0",
     "typescript": "^7.0.2"
   },
-  "type": "module",
   "scripts": {
     "start": "tsc && node dist/index.js",
     "clean": "rm -r dist && tsc",
