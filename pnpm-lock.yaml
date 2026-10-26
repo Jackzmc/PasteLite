@@ -20,6 +20,9 @@ importers:
       fastify:
         specifier: ^5.12.7
         version: 5.12.7
+      fastify-plugin:
+        specifier: ^6.0.1
+        version: 6.0.1
       handlebars:
         specifier: ^4.7.10
         version: 4.7.10

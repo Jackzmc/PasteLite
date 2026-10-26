@@ -1,29 +1,31 @@
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS base
 
-WORKDIR /build
+RUN npm install -g pnpm
 
-# Setup deps
-COPY package*.json /build/
-COPY yarn.lock* /build/
+COPY . /app
+WORKDIR /app
 
-RUN yarn
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm \
+    pnpm install --store-dir /var/cache/pnpm --prod --frozen-lockfile
 
-# Build app
-COPY . .
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm \
+    pnpm install --store-dir /var/cache/pnpm --frozen-lockfile
+RUN pnpm run build
 
-RUN npx tsc
-
-FROM node:24-alpine AS prod
-# FROM node:bookworm AS prod
+FROM base AS prod
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/static /app/static
+RUN mkdir /app/db
 COPY package*.json /app/
-COPY yarn.lock* /app/
-COPY static /app/static
-RUN yarn --production && mkdir /app/db
-COPY --from=builder /build/dist /app/dist/
+
+EXPOSE 8080
 
 CMD ["node", "./dist/index.js"]
